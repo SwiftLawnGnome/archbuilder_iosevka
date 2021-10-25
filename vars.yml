@@ -4,69 +4,116 @@ build:
   # - ttf-iosevka-term-custom-git
   # - ttf-iosevka-fontconfig-mono-custom-git
   # - ttf-iosevka-fixed-custom-git
+  - ttf-iosevka-quasi-proportional-custom-git
 spacings:
   - ''  # some wide glyphs
   - term  # fewer wide glyphs
   - fontconfig-mono  # no wide glyphs
   - fixed  # neither wide glyphs nor ligatures
+  - quasi-proportional
 build_webfonts: no
+branch: master
 charvars:
-  digit-form: lining
-  turn-v: curly
-  capital-b: more-asymmetric
-  capital-d: more-rounded
-  capital-g: toothless-corner
+  digit-form: old-style
+  apl-form: enable
+  capital-a: curly-serifless
+  capital-b: standard-interrupted-bilateral-serifed
+  capital-c: serifless
+  capital-d: more-rounded-unilateral-serifed
+  capital-e: serifless
+  capital-f: top-left-serifed
+  capital-g: toothless-corner-serifless-hooked
+  capital-h: serifless
   capital-i: short-serifed
   capital-j: serifless
-  capital-k: curly
-  capital-m: hanging
+  capital-k: curly-top-left-serifed
+  capital-l: serifless
+  capital-m: hanging-motion-serifed
+  capital-n: standard
+  capital-p: closed-motion-serifed
   capital-q: crossing
-  capital-r: curly
-  capital-y: curly
-  a: doublestorey-tailed
+  capital-r: straight-open
+  capital-s: serifless
+  capital-t: serifless
+  capital-u: toothless-rounded
+  capital-v: curly
+  capital-w: straight-asymmetric
+  capital-x: curly-serifless
+  capital-y: curly-serifless
+  capital-z: straight-serifless-with-crossbar
+  a: double-storey-tailed
   b: toothless-corner
-  d: tailed
+  c: serifless
+  d: tailed-serifless
+  e: rounded
   f: flat-hook-tailed
-  g: opendoublestorey
+  g: double-storey-open
   h: straight
   i: hooky
   j: serifless
-  k: curly
+  k: curly-serifless
   l: flat-tailed
-  m: shortleg
+  m: short-leg
   n: earless-corner-tailed
-  p: eared
-  q: earless-corner-tailed
+  p: motion-serifed
+  q: earless-corner-diagonal-tailed
   r: earless-corner
+  s: serifless
   t: standard
   u: toothless-rounded
   v: curly
-  w: curly
-  x: curly
+  w: cursive
+  x: curly-serifless
   y: curly
-  z: with-crossbar
-  eszet: longs-s-lig
-  lambda: curly
-  zero: reverse-slashed
-  one: nobase
-  three: flattop
+  z: straight-serifless-with-crossbar
+  long-s: bent-hook-tailed
+  eszet: longs-s-lig-tailed
+  turn-v: curly
+  lower-alpha: crossing
+  lower-delta: rounded
+  capital-gamma: serifless
+  lower-iota: serifed-flat-tailed
+  lower-lambda: curly
+  lower-mu: tailed
+  lower-xi: flat-top
+  cyrl-capital-ze: unilateral-serifed
+  cyrl-ze: unilateral-serifed
+  cyrl-capital-ka: curly-serifless
+  cyrl-ka: curly-serifless
+  cyrl-el: straight
+  cyrl-en: tailed-top-left-serifed
+  cyrl-ef: cursive
+  cyrl-che: tailed
+  cyrl-capital-u: curly-turn
+  cyrl-ya: straight-tailed
+  cyrl-yeri: round
+  cyrl-yery: round
+  zero: slashed-oval
+  one: no-base
+  two: curly-neck
+  three: flat-top
   four: semi-open
+  five: oblique-upper-left-bar
   six: open-contour
-  seven: noserif
+  seven: curly-serifless
+  eight: crossing-asymmetric
   nine: straight-bar
   tilde: low
-  asterisk: hexhigh
+  asterisk: turn-hex-high
   underscore: high
   paragraph-sign: low
   caret: high
   paren: normal
   brace: curly
-  number-sign: upright
+  number-sign: upright-tall
   ampersand: flat-top
   at: short
-  dollar: opencap
-  percent: rings
+  dollar: open-cap
+  cent: open
+  percent: rings-segmented-slash
   bar: natural-slope
   lig-ltgteq: flat
   ascii-single-quote: raised-comma
   ascii-grave: straight
+  question: smooth
+  punctuation-dot: round

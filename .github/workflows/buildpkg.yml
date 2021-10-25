@@ -2,7 +2,7 @@ name: Build and upload Arch Linux packages
 on:
   push:
     tags:
-      - 'r[0-9]*'
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,9 +14,9 @@ jobs:
 
       - name: create and update build ctnr from official repos
         run: |
-          buildah from --name ctnr archlinux
+          buildah from --name ctnr docker.io/library/archlinux:base-devel
           buildah run ctnr pacman --noconfirm -Syu
-          buildah run ctnr pacman --noconfirm -S --needed base-devel git
+          buildah run ctnr pacman --noconfirm -S --needed git
 
       - name: add non-root user to build ctnr
         run: |
@@ -26,7 +26,7 @@ jobs:
       - name: build and install AUR dep ttfautohint
         run: |
           buildah config -u dev ctnr
-          buildah run ctnr gpg --keyserver keys.gnupg.net --recv-keys 58E0C111E39F5408C5D3EC76C1A60EACE707FDA5
+          buildah run ctnr gpg --keyserver keyserver.ubuntu.com --recv-keys 58E0C111E39F5408C5D3EC76C1A60EACE707FDA5
           buildah run ctnr git clone https://aur.archlinux.org/ttfautohint /home/dev/ttfautohint
           buildah config --workingdir /home/dev/ttfautohint ctnr
           buildah run ctnr makepkg --noconfirm -si
@@ -40,41 +40,44 @@ jobs:
       - name: render PKGBUILDs
         run: ./mk/pkgbuilds.sh
 
-      - name: create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: copy ttf-iosevka-custom-git PKGBUILD into build ctnr
+      - name: copy ttf-iosevka-term-custom-git PKGBUILD into build ctnr
         run: |
           buildah copy --chown dev ctnr pkgs/ttf-iosevka-custom-git /home/dev/ttf-iosevka-custom-git
 
-      - name: build and siphon ttf-iosevka-custom-git from build ctnr, setting PKG to artifact filename
+      - name: build and siphon ttf-iosevka-term-custom-git from build ctnr
         run: |
           buildah config -u dev --workingdir /home/dev/ttf-iosevka-custom-git ctnr
           buildah run ctnr makepkg --noconfirm -s
 
-          buildah run ctnr ls -l
+          buildah run ctnr ls -lh
 
           pkg="$(buildah run ctnr sh -c "printf '%s\n' *.pkg.*")"
-          buildah run ctnr cat "$pkg" >"$pkg"
+          mkdir -p "${RUNNER_TEMP}/dist"
+          buildah run ctnr cat "$pkg" >"${RUNNER_TEMP}/dist/${pkg}"
 
-          printf '%s\n' "PKG=$pkg" >>$GITHUB_ENV
+          printf '%s\n' "${RUNNER_TEMP}/dist/"
+          ls -lh "${RUNNER_TEMP}/dist/"
 
-      - name: upload pkg as release asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: copy ttf-iosevka-quasi-proportional-custom-git PKGBUILD into build ctnr
+        run: |
+          buildah copy --chown dev ctnr pkgs/ttf-iosevka-quasi-proportional-custom-git /home/dev/ttf-iosevka-quasi-proportional-custom-git
+
+      - name: build and siphon ttf-iosevka-quasi-proportional-custom-git from build ctnr
+        run: |
+          buildah config -u dev --workingdir /home/dev/ttf-iosevka-quasi-proportional-custom-git ctnr
+          buildah run ctnr makepkg --noconfirm -s
+
+          buildah run ctnr ls -lh
+
+          pkg="$(buildah run ctnr sh -c "printf '%s\n' *.pkg.*")"
+          mkdir -p "${RUNNER_TEMP}/dist"
+          buildah run ctnr cat "$pkg" >"${RUNNER_TEMP}/dist/${pkg}"
+
+          printf '%s\n' "${RUNNER_TEMP}/dist/"
+          ls -lh "${RUNNER_TEMP}/dist/"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.PKG }}
-          asset_name: ${{ env.PKG }}
-          asset_content_type: application/zip
-
+          files: ${{ runner.temp }}/dist/*
+          fail_on_unmatched_files: true
