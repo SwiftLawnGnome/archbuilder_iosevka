@@ -28,11 +28,11 @@ fork this repo on GitHub, then:
      $ git clone <your-github-fork>
      $ cd archbuilder_iosevka
 
-- configure your font, either by editing ``vars.yml``:
+- configure your font (see the `character variants`_), either by editing ``vars.nt``:
 
   .. code:: console
 
-     $ $EDITOR vars.yml
+     $ $EDITOR vars.nt
 
   or by `Using the Customizer Site`_.
 
@@ -46,8 +46,8 @@ fork this repo on GitHub, then:
 
   .. code:: console
 
-     $ git commit -am "much better now"
-     $ git tag awesome-build-label
+     $ git commit -am "whatever change message you want"
+     $ git tag whatever-label-you-want
      $ git push && git push --tags
 
 You can watch the build process in your ``Actions`` tab,
@@ -73,21 +73,24 @@ To use a configuration thus generated with this builder:
 
 - in the customizer, leave the default Family Name ("Iosevka Custom")
 - save the generated configuration as ``templates/private-build-plans.toml.wz``
-- in ``vars.yml``'s ``build`` list, ensure the only uncommented item is ``ttf-iosevka-custom-git``,
+- in ``vars.nt``'s ``build`` list, ensure the only uncommented item is ``ttf-iosevka-custom-git``,
   with either an editor:
 
   .. code:: console
 
-     $ $EDITOR vars.yml
+     $ $EDITOR vars.nt
 
-  or yamlpath's ``yaml-merge``:
+  or NestedTextTo and yamlpath's ``yaml-merge``:
 
   .. code:: console
 
+     $ nt2yaml vars.nt >vars.yml
      $ yaml-merge -A right -w vars.yml vars.yml <<<'{"build": ["ttf-iosevka-custom-git"]}'
+     $ yaml2nt vars.yml >vars.nt
 
 
 .. _Iosevka: https://github.com/be5invis/Iosevka/
+.. _character variants: https://github.com/be5invis/Iosevka/blob/main/doc/custom-build.md
 .. _an official web app: https://typeof.net/Iosevka/customizer
 .. _CLI: https://github.com/cli/cli
 

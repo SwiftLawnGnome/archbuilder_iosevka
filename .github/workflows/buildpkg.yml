@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: create and update build ctnr from official repos
         run: |
           buildah from --name ctnr docker.io/library/archlinux:base-devel
+          buildah copy ctnr 'https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&ip_version=6&use_mirror_status=on' /tmp/mirrorlist
+          buildah run ctnr sh -c "sed 's/^#Server =/Server =/g' /tmp/mirrorlist | shuf >/etc/pacman.d/mirrorlist"
+          buildah run ctnr chmod 0644 /etc/pacman.d/mirrorlist
           buildah run ctnr pacman --noconfirm -Syu
           buildah run ctnr pacman --noconfirm -S --needed git
 
@@ -30,12 +33,6 @@ jobs:
           buildah run ctnr git clone https://aur.archlinux.org/ttfautohint /home/dev/ttfautohint
           buildah config --workingdir /home/dev/ttfautohint ctnr
           buildah run ctnr makepkg --noconfirm -si
-
-      - name: install templating tools
-        run: |
-          python3 -m pip install -U pip setuptools wheel
-          python3 -m pip install -r requirements.txt
-          printf '%s\n' "$HOME/.local/bin" >>$GITHUB_PATH
 
       - name: render PKGBUILDs
         run: ./mk/pkgbuilds.sh
@@ -58,8 +55,33 @@ jobs:
           printf '%s\n' "${RUNNER_TEMP}/dist/"
           ls -lh "${RUNNER_TEMP}/dist/"
 
+      - name: copy ttf-iosevka-term-custom-git PKGBUILD into build ctnr
+        run: |
+          buildah copy --chown dev ctnr pkgs/ttf-iosevka-custom-git /home/dev/ttf-iosevka-custom-git
+
+      - name: build and siphon ttf-iosevka-custom-git from build ctnr
+        run: |
+          buildah config -u dev --workingdir /home/dev/ttf-iosevka-custom-git ctnr
+          buildah run ctnr makepkg --noconfirm -s
+
+          buildah run ctnr ls -lh
+
+          pkg="$(buildah run ctnr sh -c "printf '%s\n' *.pkg.*")"
+          mkdir -p "${RUNNER_TEMP}/dist"
+          buildah run ctnr cat "$pkg" >"${RUNNER_TEMP}/dist/${pkg}"
+
+          printf '%s\n' "${RUNNER_TEMP}/dist/"
+          ls -lh "${RUNNER_TEMP}/dist/"
+
+      - name: make release notes
+        run: |
+          printf '%s\n' '`vars.nt`:' '```yaml' >release.md
+          cat vars.nt >>release.md
+          printf '%s\n' '```' >>release.md
+
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ${{ runner.temp }}/dist/*
           fail_on_unmatched_files: true
+          body_path: release.md
